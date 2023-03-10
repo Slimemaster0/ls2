@@ -1,0 +1,9 @@
+File: CMakeLists.txt
+Source: https://github.com/hyprwm/Hyprland/blob/main/CMakeLists.txt
+Original license: BSD 3-Clause license
+Credit: Vaxry, hyprwm
+Borrowed code: [
+file(GLOB_RECURSE SRCFILES "src/*.c")
+
+add_executable(ls2 ${SRCFILES})
+]
