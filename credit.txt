@@ -11,6 +11,10 @@ file(GLOB_RECURSE SRCFILES "src/*.c")
 
 add_executable(ls2 ${SRCFILES})
 ]
+Copyright: [
+Copyright (c) 2022-2023, vaxerski
+All rights reserved.
+]
 Legal notice: [
 1. Redistributions of source code must retain the above copyright notice, this
    list of conditions and the following disclaimer.
