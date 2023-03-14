@@ -1,4 +1,4 @@
-cmake_minimum_required(3.25.3)
+cmake_minimum_required(VERSION 3.25)
 project(ls² VERSION 0.0.0)
 
 file(GLOB_RECURSE SRCFILES "src/*.c")
