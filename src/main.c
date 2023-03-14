@@ -7,11 +7,17 @@
 
 int main(int argc, char *argv[]) {
     char path[BUF_SIZE] = ".";
-
     char showHidden = 0;
+
     for (int i = 1; i < argc; i++) {
-	if (strcmp(argv[i], "-a") == 0) {
-	    showHidden = 1;
+	if (argv[i][0] == '-' && argv[i][1] != '-') {
+	    size_t argLen = strlen(argv[i]);
+
+	    for (int j = 1; j <= argLen; j++) {
+		switch (argv[i][j]) {
+		    case 'a': showHidden = 1;
+		}
+	    }
 	    continue;
 	}
 	strcpy(path, argv[i]);
