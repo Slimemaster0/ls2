@@ -2,7 +2,8 @@
 #include "format.h"
 #include <dirent.h>
 #include <string.h>
-#include "type.h"
+#include "fAttrib.h"
+#include <errno.h>
 
 #define BUF_SIZE 256
 
@@ -15,13 +16,13 @@ int main(int argc, char *argv[]) {
 	    size_t argLen = strlen(argv[i]);
 
 	    for (int j = 1; j <= argLen; j++) {
-		switch (argv[i][j]) {
+		switch(argv[i][j]) {
 		    case 'a': showHidden = 2;
 		    case 'A': showHidden = 1;
 
 		    default: {
 			printf("%sERR:%s unknown argument '%s%c%s'", RED, RESET_FORMAT, BOLD, argv[i][j], RESET_FORMAT);
-			return 2;
+			return errno;
 		    }
 		}
 	    }
@@ -35,14 +36,20 @@ int main(int argc, char *argv[]) {
     DIR *dirP = opendir(path);
     if (dirP == NULL) { // test if the directory exists
 	printf("%sERR:%s Couldn't open directory %s\n", RED, RESET_FORMAT, path);
-	return 1;
+	return errno;
     }
 
     while ((pDirent = readdir(dirP)) != NULL) { // Print the files
 	char *fname = strdup(pDirent->d_name);
 	if (fname[0] != '.' || showHidden >= 1) {
-		char type = fType(strcat(strcat(path, "/"), fname));
-		printf("%c %s\n", type, fname);
+		char *fPath = strdup(path);
+		strcat(fPath, "/");
+		strcat(fPath, fname);
+
+		char type = fType(fPath);
+		printf("%c", type);
+		char isExec = fPermissions(fPath);
+		printf("%s\n", fname);
 	}
     }
 
