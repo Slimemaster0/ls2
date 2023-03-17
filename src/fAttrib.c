@@ -41,44 +41,44 @@ char fPermissions(const char *path) {
     fileMode = fileattrib.st_mode;
     /* Check owner permissions */
     if ((fileMode & S_IRUSR) && (fileMode & S_IREAD))
-      printf("r");
+      printf("%s%sr%s", BOLD, YELLOW, RESET_FORMAT);
     else
       printf("-");
     if ((fileMode & S_IWUSR) && (fileMode & S_IWRITE)) 
-      printf("w");
+      printf("%s%sw%s", BOLD, RED, RESET_FORMAT);
     else
       printf("-");
     if ((fileMode & S_IXUSR) && (fileMode & S_IEXEC)) {
-      printf("x");
+      printf("%s%sx%s", BOLD, GREEN, RESET_FORMAT);
       isExec = 1;
     } else
       printf("-");
     /* Check group permissions */
     if ((fileMode & S_IRGRP) && (fileMode & S_IREAD))
-      printf("r");
+      printf("%sr%s", YELLOW, RESET_FORMAT);
     else
       printf("-");
     if ((fileMode & S_IWGRP) && (fileMode & S_IWRITE))
-      printf("w");
+      printf("%sw%s", RED, RESET_FORMAT);
     else
       printf("-");
     if ((fileMode & S_IXGRP) && (fileMode & S_IEXEC)) {
-      printf("x");
+      printf("%sx%s", GREEN, RESET_FORMAT);
       isExec = 2;
     } else
       printf("-");
     /* check other user permissions */
     if ((fileMode & S_IROTH) && (fileMode & S_IREAD))
-      printf("r");
+      printf("%sr%s", YELLOW, RESET_FORMAT);
     else
       printf("-");
     if ((fileMode & S_IWOTH) && (fileMode & S_IWRITE))
-      printf("w");
+      printf("%sw%s",  RED, RESET_FORMAT);
     else
       printf("-");
     if ((fileMode & S_IXOTH) && (fileMode & S_IEXEC)) {
       /* because this is the last permission, leave 3 blank spaces after print */
-      printf("x   ");
+      printf("%sx%s   ", GREEN, RESET_FORMAT);
       isExec = 3;
     } else {
       printf("-   ");

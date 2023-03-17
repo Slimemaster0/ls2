@@ -4,6 +4,7 @@
 #include <string.h>
 #include "fAttrib.h"
 #include <errno.h>
+#include <stdlib.h>
 
 #define BUF_SIZE 256
 
@@ -47,9 +48,26 @@ int main(int argc, char *argv[]) {
 		strcat(fPath, fname);
 
 		char type = fType(fPath);
-		printf("%c", type);
+
+		// Set the name color of the file.
+		char fileColor[18] = {'\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0'};
+		switch (type) {
+		    case '.': {} break;
+		    case 'd': {
+				  strcpy(fileColor, BOLD);
+				  strcat(fileColor, BLUE);
+			      } break;
+		    case 'b': {
+				  strcpy(fileColor, YELLOW);
+				  strcat(fileColor, BOLD);
+				  strcat(fileColor, BLACK_BG);
+			      } break;
+		    case 'l': { strcpy(fileColor, CYAN ); } break;
+		}
+
+		printf("%s%c%s", fileColor, type, RESET_FORMAT);
 		char isExec = fPermissions(fPath);
-		printf("%s\n", fname);
+		printf("%s%s%s\n", fileColor, fname, RESET_FORMAT);
 	}
     }
 
