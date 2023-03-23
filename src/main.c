@@ -5,6 +5,7 @@
 #include "fAttrib.h"
 #include <errno.h>
 #include <stdlib.h>
+#include "icons.h"
 
 #define BUFSIZE 256
 
@@ -48,18 +49,24 @@ int main(int argc, char *argv[]) {
 	if (fname != NULL) {
 	    fname = strdup(pDirent->d_name);
 	    if (fname[0] != '.' || showHidden >= 1) {
-		    char *fPath = malloc(BUFSIZE + 64);
+		if (strcmp(fname, ".") != 0 && strcmp(fname, "..") != 0 || showHidden >= 2) {
+		    char *fPath = malloc(BUFSIZE + 128);
 		    fPath = strdup(path);
 		    strcat(fPath, "/");
 		    strcat(fPath, fname);
 
+		    char icon[5] = {' ',0,0,0};
+
 		    char type = fType(fPath);
 
 		    // Set the name color of the file.
+		    
 		    char fileColor[18] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+
 		    switch (type) {
 			case '.': {} break;
 			case 'd': {
+				    strcpy(icon, " ");
 				    strcpy(fileColor, BOLD);
 				    strcat(fileColor, BLUE);
 				  } break;
@@ -68,16 +75,22 @@ int main(int argc, char *argv[]) {
 				    strcat(fileColor, BOLD);
 				    strcat(fileColor, BLACK_BG);
 				  } break;
-			case 'l': { strcpy(fileColor, CYAN ); } break;
+			case 'l': {
+				    strcpy(icon, " ");
+				    strcpy(fileColor, CYAN );
+				  } break;
 		    }
-
 		    printf("%s%c%s", fileColor, type, RESET_FORMAT);
 		    char isExec = fPermissions(fPath);
+		    if (type == '.') {
+			strcpy(icon, fTypeIcon(fname, isExec));
+		    }
 
 		    if (isExec > 0 && type == '.') { strcpy(fileColor, GREEN); }
 		    
-		    printf("%s%s%s\n", fileColor, fname, RESET_FORMAT);
+		    printf("%s%s %s%s\n", fileColor, icon, fname, RESET_FORMAT);
 		    free(fPath);
+		}
 	    }
 	    free(fname);
 	}
