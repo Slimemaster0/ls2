@@ -1,5 +1,6 @@
 #include <string.h>
 #include <strings.h>
+#include "format.h"
 
 char* specialFileNames(char *fName, char isExec) {
     if (strcasecmp(fName, "LICENSE*") == 0) {
@@ -36,9 +37,22 @@ char* fTypeIcon(char *fName, char isExec) {
 	switch (fName[len -2]) {
 	    case 'j': {
 		switch (fName[len -1]) {
-		    case 's': return " "; break;
+		    case 's': {
+				  char* javaScript = strdup(BOLD);
+				  strcat(javaScript, "JS");
+				  strcat(javaScript, RESET_FORMAT);
+				  return javaScript;
+			      }; break;
 		}
 	    } break;
+
+	    case 'p': {
+		switch (fName[len -1]) {
+		    case 'y': {
+			return " ";
+		    }
+		}
+	    }
 	    
 	    case 'r': {
 		switch (fName[len -1]) {
@@ -50,17 +64,33 @@ char* fTypeIcon(char *fName, char isExec) {
 		switch (fName[len -1]) {
 		    case 'h': return " "; break;
 		}
-	    }
-	    case 'p': {
+	    } // s
+
+	    case 't': {
 		switch (fName[len -1]) {
-		    case 'y': {
-			return " ";
+		    case 's': {
+				  char* typeScript = strdup(BOLD);
+				  strcat(typeScript, "TS");
+				  strcat(typeScript, RESET_FORMAT);
+				  return typeScript;
+			      }; break;
+		}
+	    } // t
+	} 
+    } else if (fName[len -4] == '.') { // Triple character file extension
+	switch (fName[len -3]) {
+	    case 'z': {
+		switch (fName[len -2]) {
+		    case 's': {
+			switch (fName[len -1]) {
+			    case 'h': {
+				return " ";
+			    }
+			}
 		    }
 		}
 	    }
-	} 
-    } else if (fName[len -4] == '.') { // Triple character file extension
-    
+	}
     } else if (fName[len -5] == '.') { // Quadriple character file extension
 	switch (fName[len -4]) {
 	    case 'j': {
@@ -69,7 +99,12 @@ char* fTypeIcon(char *fName, char isExec) {
 			switch (fName[len -2]) {
 			    case 'o': {
 				switch (fName[len -1]) {
-				    case 'n': return "{}"; break;
+				    case 'n': {
+						  char* json = strdup(BOLD);
+						  strcat(json, "{}");
+						  strcat(json, RESET_FORMAT);
+						  return json;
+					      } break;
 				} 
 			    } break; // jso
 			}
