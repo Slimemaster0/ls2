@@ -1,3 +1,4 @@
+#include <stddef.h>
 #include <stdio.h>
 #include "format.h"
 #include <dirent.h>
@@ -55,7 +56,7 @@ int main(int argc, char *argv[]) {
 		    strcat(fPath, "/");
 		    strcat(fPath, fname);
 
-		    char icon[5] = {' ',0,0,0};
+		    char icon[9] = {' ',0,0,0,0,0,0,0,0};
 
 		    char type = fType(fPath);
 
@@ -82,13 +83,71 @@ int main(int argc, char *argv[]) {
 		    }
 		    printf("%s%c%s", fileColor, type, RESET_FORMAT);
 		    char isExec = fPermissions(fPath);
+
+		    char sizePrefix[2] = "-";
+		    char filler[9] = "\x1b[90m   ";
+
+		    size_t len; // used later
 		    if (type == '.') {
 			strcpy(icon, fTypeIcon(fname, isExec));
+			
+			// Get the size of the file
+			FILE *fptr = fopen(fPath, "r"); // Open the current file
+			fseek(fptr, 0l, SEEK_END); // move the "cursor" to the end of the file
+			len = ftell(fptr); // Get the "cursor" position and by that the file size
+			fclose(fptr); // free(fptr);
+			
+			// format size text
+			if (len < 10) {
+			    strcpy(filler, "   ");
+			    strcpy(sizePrefix, "");
+			} else if (len < 100) { // 10
+			    strcpy(filler, "  ");
+			    strcpy(sizePrefix, "");
+			} else if (len < 1000) { // 100
+			    strcpy(sizePrefix, "");
+			    strcpy(filler, " ");
+			    strcat(filler, GREEN);
+			} else if (len < 2000) { // [1k - 2k[
+			    strcpy(sizePrefix, "");
+			    strcpy(filler, GREEN);
+			} else if (len < 10000) { // 1000
+			    len /= 1000;
+			    strcpy(sizePrefix, "k");
+			    strcpy(filler, "  ");
+			} else if (len < 100000) { // 10k
+			    len /= 1000;
+			    strcpy(sizePrefix, "k");
+			    strcpy(filler, " ");
+			    strcat(filler, GREEN);
+			} else if (len < 1000000) { // 100k
+			    len /= 1000;
+			    strcpy(sizePrefix, "k");
+			    strcpy(filler, "");
+			    strcat(filler, GREEN);
+			} else if (len < 10000000) { // 1m
+			    len /= 1000000;
+			    strcpy(sizePrefix, "m");
+			    strcpy(filler, "  ");
+			} else if (len < 100000000) { // 10m
+			    len /= 1000000;
+			    strcpy(sizePrefix, "m");
+			    strcpy(filler, " ");
+			} else if (len < 1000000000) { // 10m
+			    len /= 1000000;
+			    strcpy(sizePrefix, "m");
+			    strcpy(filler, "");
+			}
+
+
 		    }
 
 		    if (isExec > 0 && type == '.') { strcpy(fileColor, GREEN); }
-		    
-		    printf("%s%s %s%s\n", fileColor, icon, fname, RESET_FORMAT);
+		    if (type == '.') {
+			printf("%s%ld%s%s %s%s %s%s%s\n", filler, len, sizePrefix, RESET_FORMAT, fileColor, icon, fileColor, fname, RESET_FORMAT);
+		    } else {
+			printf("%s%s%s %s%s %s%s%s\n", filler, sizePrefix, RESET_FORMAT, fileColor, icon, fileColor, fname, RESET_FORMAT);
+		    }
 		    free(fPath);
 		}
 	    }
