@@ -1,8 +1,11 @@
+// vim:fileencoding=utf-8:foldmethod=marker
+// {{{ Include libraries
 #include <string.h>
 #include <strings.h>
 #include "format.h"
+// }}}
 
-char* specialFileNames(char *fName, char isExec) {
+char* specialFileNames(char *fName, char isExec) { // {{{ char* specialFileNames
     if (strcasecmp(fName, "LICENSE*") == 0) {
 	return " ";
     }
@@ -13,6 +16,7 @@ char* specialFileNames(char *fName, char isExec) {
 	    strcasecmp(fName, "cmakelists.txt") == 0 ||
 	    strcasecmp(fName, "Makefile") == 0 ||
 	    isExec != 0) {
+
 	return " ";
     }
 
@@ -20,20 +24,19 @@ char* specialFileNames(char *fName, char isExec) {
 	return "﬒ ";
     } else
     return " ";
-}
+} // }}}
 
-char* fTypeIcon(char *fName, char isExec) {
+char* fTypeIcon(char *fName, char isExec) { // char* fTypeIcon {{{
     size_t len = strlen(fName);
 
 	
-    if (fName[len -1] == '.') { // why?
+    if (fName[len -1] == '.') { // {{{ why?
     } else if (fName[len -2] == '.') { // single character file extension
 	switch (fName[len -1]) {
 	    case 'c': return " "; break;
 	    case 'h': return " ";
-	}
-
-    } else if (fName[len -3] == '.') { // duble character file extension
+	} // }}}
+    } else if (fName[len -3] == '.') { // {{{ duble character file extension
 	switch (fName[len -2]) {
 	    case 'j': {
 		switch (fName[len -1]) {
@@ -76,22 +79,51 @@ char* fTypeIcon(char *fName, char isExec) {
 			      }; break;
 		}
 	    } // t
-	} 
-    } else if (fName[len -4] == '.') { // Triple character file extension
+	} // }}}
+    } else if (fName[len -4] == '.') { // {{{ Triple character file extension
 	switch (fName[len -3]) {
+	    case 'r': {
+		switch (fName[len -2]) {
+		    case 'a': {
+			switch (fName[len -1]) {
+			    case 'r': {
+				return " ";
+			    } break;
+			}
+		    } break;
+		}
+	    } break;
+	    case 'v': {
+		switch (fName[len -2]) {
+		    case 'p': {
+			switch (fName[len -2]) {
+			    case 'k': {
+				return " ";
+			    } break;
+			}
+		    } break;
+		}
+	    } break;
 	    case 'z': {
 		switch (fName[len -2]) {
 		    case 's': {
 			switch (fName[len -1]) {
 			    case 'h': {
 				return " ";
-			    }
+			    } break;
 			}
-		    }
+		    } break;
+		    case 'i': {
+			switch (fName[len -1]) {
+			    case 'p': {
+				return " ";
+			    } break;
+			}
+		    } break;
 		}
-	    }
-	}
-    } else if (fName[len -5] == '.') { // Quadriple character file extension
+	    } break;
+	} // }}} 
+    } else if (fName[len -5] == '.') { // {{{ Quadriple character file extension
 	switch (fName[len -4]) {
 	    case 'j': {
 		switch (fName[len -3]) {
@@ -112,7 +144,7 @@ char* fTypeIcon(char *fName, char isExec) {
 		}
 	    } break; // j
 	}
-    }
+    } // }}}
 
     return specialFileNames(fName, isExec);
-}
+} // }}}

@@ -1,3 +1,5 @@
+// vim:fileencoding=utf-8:foldmethod=marker
+// Include libraries {{{
 #include <stddef.h>
 #include <stdio.h>
 #include "format.h"
@@ -7,6 +9,8 @@
 #include <errno.h>
 #include <stdlib.h>
 #include "icons.h"
+#include "extras.h"
+// }}}
 
 #define BUFSIZE 256
 
@@ -14,7 +18,7 @@ int main(int argc, char *argv[]) {
     char *path= ".";
     char showHidden = 0;
 
-    for (int i = 1; i < argc; i++) {
+    for (int i = 1; i < argc; i++) { // {{{ Argument parser
 	size_t argLen = strlen(argv[i]);
 	if (argv[i][0] == '-' && argv[i][1] != '-') {
 
@@ -35,7 +39,7 @@ int main(int argc, char *argv[]) {
 	path = malloc(sizeof(argv[i]));
 	if(path != NULL)
 	strcpy(path, argv[i]);
-    }
+    } // }}}
 
     struct dirent *pDirent; // Directory ending.
 
@@ -45,7 +49,7 @@ int main(int argc, char *argv[]) {
 	return 2;
     }
 
-    while ((pDirent = readdir(dirP)) != NULL) { // Print the files
+    while ((pDirent = readdir(dirP)) != NULL) { // {{{ Print the files
 	char *fname = malloc(BUFSIZE);
 	if (fname != NULL) {
 	    fname = strdup(pDirent->d_name);
@@ -64,8 +68,9 @@ int main(int argc, char *argv[]) {
 		    
 		    char fileColor[18] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
+		    // {{{ File types
 		    switch (type) {
-			case '.': {} break;
+			case '.': break;
 			case 'd': {
 				    strcpy(icon, " ");
 				    strcpy(fileColor, BOLD);
@@ -80,12 +85,16 @@ int main(int argc, char *argv[]) {
 				    strcpy(icon, " ");
 				    strcpy(fileColor, CYAN );
 				  } break;
-		    }
+		    } // }}}
+
+		    // Print the type char
 		    printf("%s%c%s", fileColor, type, RESET_FORMAT);
+
+		    // Print the file permissions
 		    char isExec = fPermissions(fPath);
 
 		    char sizePrefix[2] = "-";
-		    char filler[9] = "\x1b[90m   ";
+		    char sizeFiller[9] = "\x1b[90m   ";
 
 		    size_t len; // used later
 		    if (type == '.') {
@@ -96,64 +105,96 @@ int main(int argc, char *argv[]) {
 			fseek(fptr, 0l, SEEK_END); // move the "cursor" to the end of the file
 			len = ftell(fptr); // Get the "cursor" position and by that the file size
 			fclose(fptr); // free(fptr);
+
+			// format size text #: {{{
+			char spc3[4] = "   ";
+			char spc2[3] = "  ";
+			char spc1[2] = " ";
+			char spc0[1] = "";
 			
-			// format size text
 			if (len < 10) {
-			    strcpy(filler, "   ");
-			    strcpy(sizePrefix, "");
+			    strcpy(sizeFiller, spc3);
+			    strcpy(sizePrefix, spc0);
 			} else if (len < 100) { // 10
-			    strcpy(filler, "  ");
-			    strcpy(sizePrefix, "");
+			    strcpy(sizeFiller, spc2);
+			    strcpy(sizePrefix, spc0);
 			} else if (len < 1000) { // 100
-			    strcpy(sizePrefix, "");
-			    strcpy(filler, " ");
-			    strcat(filler, GREEN);
+			    strcpy(sizePrefix, spc0);
+			    strcpy(sizeFiller, spc1);
+			    strcat(sizeFiller, GREEN);
 			} else if (len < 2000) { // [1k - 2k[
-			    strcpy(sizePrefix, "");
-			    strcpy(filler, GREEN);
+			    strcpy(sizePrefix, spc0);
+			    strcpy(sizeFiller, GREEN);
 			} else if (len < 10000) { // 1000
 			    len /= 1000;
-			    strcpy(sizePrefix, "k");
-			    strcpy(filler, "  ");
+			    strcpy(sizePrefix, "K");
+			    strcpy(sizeFiller, spc2);
 			} else if (len < 100000) { // 10k
 			    len /= 1000;
-			    strcpy(sizePrefix, "k");
-			    strcpy(filler, " ");
-			    strcat(filler, GREEN);
+			    strcpy(sizePrefix, "K");
+			    strcpy(sizeFiller, spc1);
+			    strcat(sizeFiller, GREEN);
 			} else if (len < 1000000) { // 100k
 			    len /= 1000;
-			    strcpy(sizePrefix, "k");
-			    strcpy(filler, "");
-			    strcat(filler, GREEN);
+			    strcpy(sizePrefix, "K");
+			    strcpy(sizeFiller, spc0);
+			    strcat(sizeFiller, YELLOW);
 			} else if (len < 10000000) { // 1m
 			    len /= 1000000;
-			    strcpy(sizePrefix, "m");
-			    strcpy(filler, "  ");
+			    strcpy(sizePrefix, "M");
+			    strcpy(sizeFiller, spc2);
+			    strcat(sizeFiller, YELLOW);
 			} else if (len < 100000000) { // 10m
 			    len /= 1000000;
-			    strcpy(sizePrefix, "m");
-			    strcpy(filler, " ");
-			} else if (len < 1000000000) { // 10m
+			    strcpy(sizePrefix, "M");
+			    strcpy(sizeFiller, spc1);
+			    strcat(sizeFiller, RED);
+			} else if (len < 1000000000) { // 100m
 			    len /= 1000000;
-			    strcpy(sizePrefix, "m");
-			    strcpy(filler, "");
-			}
-
-
+			    strcpy(sizePrefix, "M");
+			    strcpy(sizeFiller, spc0);
+			    strcat(sizeFiller, RED);
+			} else if (len < 1000000000) { // 1b
+			    len /= 1000000000;
+			    strcpy(sizePrefix, "G");
+			    strcpy(sizeFiller, spc2);
+			    strcat(sizeFiller, RED);
+			} else if (len < 10000000000) { // 10b
+			    len /= 10000000000;
+			    strcpy(sizePrefix, "G");
+			    strcpy(sizeFiller, spc1);
+			    strcat(sizeFiller, RED);
+			} else if (len < 100000000000) { // 100b
+			    len /= 1000000000;
+			    strcpy(sizePrefix, "G");
+			    strcpy(sizeFiller, spc0);
+			    strcat(sizeFiller, RED);
+			} // #: }}}
 		    }
 
+		    char* userName = getFileOwnerU(fname);
+		    char fillerUN[28];
+		    if (userName[0] == 27) {
+			strcpy(fillerUN, filler(27 - strlen(userName)));
+		    } else {
+			strcpy(fillerUN, filler(18 - strlen(userName)));
+		    }
+
+
+		    // Print out the file size, -icon, -name
 		    if (isExec > 0 && type == '.') { strcpy(fileColor, GREEN); }
 		    if (type == '.') {
-			printf("%s%ld%s%s %s%s %s%s%s\n", filler, len, sizePrefix, RESET_FORMAT, fileColor, icon, fileColor, fname, RESET_FORMAT);
+			printf("%s%ld%s%s %s%s %s%s%s%s%s\n", sizeFiller, len, sizePrefix, RESET_FORMAT, fillerUN, userName, fileColor, icon, fileColor, fname, RESET_FORMAT);
 		    } else {
-			printf("%s%s%s %s%s %s%s%s\n", filler, sizePrefix, RESET_FORMAT, fileColor, icon, fileColor, fname, RESET_FORMAT);
+			printf("%s%s%s %s%s %s%s%s%s%s\n", sizeFiller, sizePrefix, RESET_FORMAT, fillerUN, userName, fileColor, icon, fileColor, fname, RESET_FORMAT);
 		    }
+		    // Free memory
 		    free(fPath);
 		}
 	    }
 	    free(fname);
 	}
-    }
+    } // }}}
 
     return 0;
 }

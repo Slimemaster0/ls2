@@ -1,3 +1,5 @@
+// vim:fileencoding=utf-8:foldmethod=marker
+// {{{ // Include libraries
 #include <sys/stat.h>
 #include <unistd.h>
 #include <stdlib.h>
@@ -6,8 +8,11 @@
 #include <stdbool.h>
 #include <errno.h>
 #include <string.h>
+#include <pwd.h>
+#include <grp.h>
+// }}}
 
-char fType(const char *path) {
+char fType(const char *path) { // {{{
     struct stat path_stat;
     stat(path, &path_stat);
     
@@ -28,9 +33,9 @@ char fType(const char *path) {
     } else {
 	return '.';
     }
-}
+} // }}}
 
-char fPermissions(const char *path) {
+char fPermissions(const char *path) { // {{{
     struct stat fileattrib;
     int fileMode;
 
@@ -85,4 +90,41 @@ char fPermissions(const char *path) {
     }
 
     return isExec;
-}
+} // }}}
+
+char* getFileOwnerU(const char *path) { // {{{
+    struct stat info;   
+    stat(path, &info);
+
+    struct passwd *pw = getpwuid(info.st_uid);
+    
+    if (pw != 0) {
+	char* userName = pw->pw_name;
+	if (strcmp(userName, getenv("USER")) == 0) {
+	    char* retUserName = strdup(GREEN);
+	    strcat(retUserName, userName);
+	    strcat(retUserName, RESET_FORMAT);
+	    return retUserName;
+	}
+	if (strcmp(userName, "root") == 0) {
+	    char* retUserName = strdup(RED);
+	    strcat(retUserName, userName);
+	    strcat(retUserName, RESET_FORMAT);
+	    return retUserName;
+	}
+	return userName;
+    }
+
+    return "\x1b[31mERROR\x1b[0m";
+} // }}}
+
+char* getFileOwnerG(const char *path) { // {{{
+    struct stat info;   
+    stat(path, &info);
+
+    struct group *gr = getgrgid(info.st_gid);
+    
+    if (gr != 0) { return gr->gr_name; }
+
+    return "\x1b[31mERROR\x1b[0m";
+} // }}}
